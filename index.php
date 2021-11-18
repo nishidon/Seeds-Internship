@@ -3,22 +3,39 @@
  * 必要なファイルを読み込む
  * ------------------------------ */
 require_once 'private/bootstrap.php';
+require_once 'private/database.php';
 
 /** @var PDO $dbh データベースハンドラ */
 
 /* --------------------
  * セッション開始
  * -------------------- */
+session_start();
 
+//編集完了表示
+            if($_SESSION['status'] == 'submitted'){
+                $status = '投稿完了!';
+            }elseif($_SESSION['status'] == 'edited'){
+                $status = '編集完了！';
+            }elseif($_SESSION['status'] == 'deleted'){
+                $status = '消去完了！';
+            }elseif($_SESSION['status'] == 'blank'){
+                $status = '全ての欄に入力してください';
+            }elseif($_SESSION['status'] == 'invalid'){
+                $status = '不正アクセス';
+            }elseif($_SESSION['status'] == 'NoRecord'){
+                $status = '投稿が存在しません';
+            }else{
+                $status = '';
+            }
+            
+            unset($_SESSION['status']);
 /* ----------------------------------------
  * データベースから投稿されている内容を取得する
  * ---------------------------------------- */
-
-// ダミーデータ
-$articles = [
-    ['id' => 1, 'name' => 'Dummy', 'content' => 'Dummyコンテンツ', 'created_at' => '2020-12-09 00:00:00', 'updated_at' => '2020-12-09 00:00:00'],
-    ['id' => 2, 'name' => 'ダミー', 'content' => 'ダミーContent', 'created_at' => '2020-12-09 12:00:00', 'updated_at' => '2020-12-09 12:00:00'],
-];
+$statement = $dbh->prepare("SELECT * FROM `articles`");
+$statement->execute();
+$articles = $statement->fetchAll();
 
 ?>
 
@@ -43,17 +60,26 @@ $articles = [
 </head>
 <body>
     <header>
-        <h1>インターンシップ掲示板</h1>
+        <h1>インターンシップ掲示板 !!!!!!!!!</h1>
     </header>
     <main>
         <ul>
-            <?php foreach ($articles as $article) { ?>
+            <?php foreach ($articles as $article) { 
+            
+            //編集済みの表示
+            if($article['updated_at'] != $article['created_at']){
+                $edited = '（編集済み）';
+            }else{
+                $edited = '';
+            }
+            
+            ?>
                 <li>
                     <div>
-                        <?= $article['id'] ?>:&nbsp;<?=$article['name'] ?>&nbsp;<?= $article['updated_at'] ?>
+                        <?= $article['id'] ?>:&nbsp;<?= htmlspecialchars($article['name']) ?>&nbsp;<?= $article['updated_at'] ?><?= $edited ?>
                     </div>
-                    <div><?= $article['content'] ?></div>
-                    <div style="display: inline-flex; display: none">
+                    <div><?= htmlspecialchars($article['content']) ?></div>
+                    <div style="display: inline-flex;">  <!--edisplay: none-->
                         <form action="editing.php" method="post">
                             <input type="hidden" name="id" value="<?= $article['id'] ?>">
                             <button type="submit">編集</button>
@@ -69,6 +95,7 @@ $articles = [
             <?php } ?>
         </ul>
         <div>
+            <h1><?= $status ?></h1>
             <form action="confirm.php" method="post">
                 <table>
                     <thead>
@@ -79,11 +106,11 @@ $articles = [
                     <tbody>
                     <tr>
                         <th><label for="name">名前</label></th>
-                        <td><input type="text" name="name" id="name" required></td>
+                        <td><input type="text" name="name" id="name" ></td>
                     </tr>
                     <tr>
                         <th><label for="content">投稿内容</label></th>
-                        <td><textarea name="content" id="content" rows="4" required></textarea></td>
+                        <td><textarea name="content" id="content" rows="4" ></textarea></td>
                     </tr>
                     </tbody>
                 </table>
@@ -102,6 +129,6 @@ $articles = [
 /* --------------------
  * Session削除
  * -------------------- */
-foreach (array_keys($_SESSION ?? []) as $key) {
-    unset($_SESSION[$key]);
-}
+// foreach (array_keys($_SESSION ?? []) as $key) {
+//     unset($_SESSION[$key]);
+// }

@@ -1,44 +1,55 @@
 <?php
-/* ------------------------------
- * 必要なファイルを読み込む
- * ------------------------------ */
 require_once 'private/bootstrap.php';
+//データベース
 require_once 'private/database.php';
-
-/** @var PDO $dbh データベースハンドラ */
-
+//セッション
+session_start();
 /* ------------------------------
  * 送られてきた値を取得する
  * ------------------------------ */
-$token = '';
-$name = '';
-$content = '';
+$token = $_POST['token'];
+$name = $_SESSION['name'];
+$content = $_SESSION['content'];
 
 /* --------------------------------------------------
- * 送られてきたトークンのバリデーション + 値のバリデーション
+ * 送られてきたトークンのバリデーション
  *
  * セッションに保存されているトークンと比較し、
  * 一致していなかった場合はトップ画面にリダイレクトする
  * -------------------------------------------------- */
-if(true) {
+ if($token != $_SESSION['token']) {
     unset($_SESSION['token']);
+     //不正なアクセス表示
+    $_SESSION['status'] = 'invalid';
     redirect('/index.php');
 }
-
+//  if(empty($name) || empty($content)){
+//      $_SESSION['status'] = 'blank';
+//      redirect('/editing.php');
+//  }
+ 
 /* ----------------------------------------
  * セッション内に保存したIDを取得する
  * ---------------------------------------- */
-$id = '';
+$id = $_SESSION['id'];
 
 /* --------------------
  * データの更新処理
  * -------------------- */
-
+$statement = $dbh->prepare('UPDATE `articles` SET name = :name, content = :content WHERE id = :id');
+$statement->execute([
+    'id' => $id,
+    'name' => $name,
+    'content' => $content,
+    ]);
 /* ------------------------------
  * セッション内のデータを削除する
  * ------------------------------ */
 unset($_SESSION['token']);
 unset($_SESSION['id']);
+
+//編集完了セッション
+$_SESSION['status'] = 'edited';
 
 ?>
 

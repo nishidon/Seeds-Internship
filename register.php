@@ -10,11 +10,11 @@ require_once 'private/database.php';
 /* --------------------
  * セッション開始
  * -------------------- */
-
+session_start();
 /* ------------------------------
  * 送られてきた値を取得する
  * ------------------------------ */
-$token = '';
+$token = $_POST['token'];
 
 /* --------------------------------------------------
  * 送られてきたトークンのバリデーション
@@ -22,25 +22,36 @@ $token = '';
  * セッションに保存されているトークンと比較し、
  * 一致していなかった場合はトップ画面にリダイレクトする
  * -------------------------------------------------- */
-if(true) {
+if($token != $_SESSION['token']) {
     unset($_SESSION['token']);
+    //不正なアクセスの表示
+    $_SESSION['status'] = 'invalid';
     redirect('/index.php');
 }
 
 /* ----------------------------------------
  * セッション内に保存した投稿内容を取得する
  * ---------------------------------------- */
-$name = '';
-$content = '';
+$name = $_SESSION['name'];
+$content = $_SESSION['content'];
 
 /* --------------------
  * データのインサート処理
  * -------------------- */
+$statement = $dbh->prepare('INSERT INTO `articles`(name, content) VALUES(:name, :content)');
+$statement->execute([
+    'name' => $name,
+    'content' => $content,
+]);
 
 /* ----------------------------------------
  * セッション内のデータを削除する (名前以外)
  * ---------------------------------------- */
+unset($_SESSION['content'], $_SESSION['token']);
 
+//投稿完了の表示用セッション
+$_SESSION['status'] = 'submitted';
+// var_dump($_SESSION);
 ?>
 
 <!-- 描画するHTML -->

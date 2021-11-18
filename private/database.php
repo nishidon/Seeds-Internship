@@ -8,11 +8,11 @@
  * DB_USER: データベースにアクセスする際に利用するユーザ
  * DB_PASSWORD: データベースにアクセスする際に利用するユーザのパスワード
  * ---------------------------------------------------------------------- */
-define('DB_HOST', 'db');
+define('DB_HOST', 'localhost');
 define('DB_PORT', 3306);
-define('DB_NAME', 'bbs');
-define('DB_USER', 'user');
-define('DB_PASSWORD', 'password');
+define('DB_NAME', 'intern');
+define('DB_USER', 'root');
+define('DB_PASSWORD', '');
 
 /* ------------------------------
  * データベースハンドラ

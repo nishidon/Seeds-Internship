@@ -7,13 +7,15 @@ require_once 'private/bootstrap.php';
 /* --------------------
  * セッション開始
  * -------------------- */
-
+session_start();
 /* ------------------------------
  * 送られてきた値を取得する
  * セッションにも保存しておく
  * ------------------------------ */
-$name = '';
-$content =  '';
+$name = $_POST['name'];
+$content = $_POST['content'];
+$_SESSION['name'] = $_POST['name'];
+$_SESSION['content'] = $_POST['content'];
 
 /* --------------------------------------------------
  * 値のバリデーションを行う
@@ -21,7 +23,10 @@ $content =  '';
  * 入力された値が正しいフォーマットで送られているかを確認する
  * 今回は値が入力されているかのみを確認する
  * -------------------------------------------------- */
-if(true) {
+ 
+if(empty($name) || empty($content)) {
+     //不正なアクセスの表示
+    $_SESSION['status'] = 'blank';
     redirect('/index.php');
 }
 
@@ -30,6 +35,7 @@ if(true) {
  * 今回は時刻をトークンとする
  * ---------------------------------------- */
 $token = strval(time());
+$_SESSION['token'] = $token;
 
 ?>
 
@@ -39,7 +45,7 @@ $token = strval(time());
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" contenhtmlt="ie=edge">
     <title>投稿確認</title>
 </head>
 <body>
@@ -50,8 +56,8 @@ $token = strval(time());
         <div>下記の内容で投稿しますがよろしいですか?</div>
         <table>
             <tbody>
-            <tr><th>名前</th><td><?= $name ?></td></tr>
-            <tr><th>投稿内容</th><td><?= $content ?></td></tr>
+            <tr><th>名前</th><td><?= htmlspecialchars($name) ?></td></tr>
+            <tr><th>投稿内容</th><td><?= htmlspecialchars($content) ?></td></tr>
             </tbody>
         </table>
         <form action="register.php" method="post">
